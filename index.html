@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lead Call Helper</title>
+    <script>
+      (function () {
+        var stored = null;
+        try {
+          stored = localStorage.getItem("lead-call-theme");
+        } catch (e) {}
+        var theme =
+          stored === "light" || stored === "dark"
+            ? stored
+            : window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="topbar">
+        <h1>Lead Call Helper</h1>
+        <button
+          type="button"
+          class="theme-toggle"
+          id="theme-toggle"
+          aria-pressed="false"
+          aria-label="Switch to Dark Mode"
+        >
+          <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M21 14.5A8.5 8.5 0 1 1 9.5 3a7 7 0 0 0 11.5 11.5z"
+            />
+          </svg>
+          <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" fill="currentColor" />
+            <g
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <path
+                d="M12 2.5v2.2M12 19.3v2.2M4.8 4.8l1.6 1.6M17.6 17.6l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.8 19.2l1.6-1.6M17.6 6.4l1.6-1.6"
+              />
+            </g>
+          </svg>
+          <span class="theme-toggle__text">Light</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="card">
+          <div class="setup">
+            <div class="field">
+              <label for="your-name">Your Name</label>
+              <input
+                id="your-name"
+                name="your-name"
+                type="text"
+                autocomplete="name"
+                spellcheck="false"
+              />
+            </div>
+            <div class="field">
+              <label for="client-name">Client Name</label>
+              <input
+                id="client-name"
+                name="client-name"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+            <div class="field">
+              <label id="lead-type-label" for="lead-type">Lead Type</label>
+              <select id="lead-type" autocomplete="off">
+                <option value="" selected>Choose a Lead Type</option>
+                <option value="ao">AO Leads</option>
+                <option value="aged">Aged Leads</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- AO Leads: from lead-call.md, above the "different lead" note. -->
+          <div class="script" data-lead="ao" hidden>
+            <a class="prefill" id="prefill-jump" href="#lead-details">
+              Enter Details You Already Have
+            </a>
+
+            <h2>Opening</h2>
+            <p class="line">
+              Hey there, is this
+              <span class="client-name">______</span>?
+            </p>
+            <p class="line">
+              Hi <span class="client-name">______</span>, my name is
+              <span id="agent-name" class="agent-name">______</span> and I'm
+              actually with USA Benefits Group. How are you doing today?
+            </p>
+
+            <details class="aside">
+              <summary>USA Benefits Group?</summary>
+              <ul>
+                <li>
+                  We're one of the largest insurance brokerages in the US.
+                </li>
+                <li>We've been in business for 39 years.</li>
+                <li>We have an A+ Better Business Bureau rating.</li>
+                <li>
+                  Feel free to look us up while we're chatting. We're very proud
+                  of that.
+                </li>
+              </ul>
+            </details>
+
+            <h2>Why You're Calling</h2>
+            <p class="line">
+              I believe you may have clicked on one of my ads. It may have been
+              on Facebook or Instagram, but I specialize in health insurance. Is
+              that something you have a need for?
+            </p>
+            <p class="line">
+              I have my own brokerage here and I have access to many of the
+              great carriers throughout the US, so I'll be able to go through a
+              bunch of options for you, and present them to you so you can make
+              an educated decision on what best aligns with your wants, needs,
+              and most importantly, your budget. Does that sound fair?
+            </p>
+
+            <h2 id="lead-details">Information to Gather</h2>
+            <p class="line">
+              So in order to find plans that work for you, I just need a little
+              information...
+            </p>
+            <form class="details" id="lead-details-form" autocomplete="off">
+              <section class="ask">
+                <p class="line">What's your zip code?</p>
+                <p class="note">
+                  <span class="note__label">Why this works:</span>
+                  This is an easy, low-friction opening question. It gets the
+                  prospect talking and establishes the rating/service area
+                  before we spend time on plan details.
+                </p>
+                <div class="field">
+                  <label for="zip">Zip Code</label>
+                  <input
+                    id="zip"
+                    name="zip"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    spellcheck="false"
+                  />
+                </div>
+              </section>
+
+              <section class="ask">
+                <p class="line">
+                  Are you looking for an individual or family plan?
+                </p>
+                <p class="note">
+                  <span class="note__label">Why this works:</span>
+                  It confirms the scope of the request. If the lead form already
+                  gives us this information, don't make the prospect repeat
+                  it—move forward.
+                </p>
+                <div class="choice">
+                  <p class="choice__prompt" id="household-label">Household</p>
+                  <div
+                    class="choice__options choice__options--three"
+                    role="radiogroup"
+                    aria-labelledby="household-label"
+                  >
+                    <label class="choice__option">
+                      <input type="radio" name="household" value="individual" />
+                      <span>Individual</span>
+                    </label>
+                    <label class="choice__option">
+                      <input type="radio" name="household" value="family" />
+                      <span>Family</span>
+                    </label>
+                    <label class="choice__option">
+                      <input type="radio" name="household" value="not-sure" />
+                      <span>Not Sure</span>
+                    </label>
+                  </div>
+                </div>
+              </section>
+
+              <section class="ask">
+                <p class="line">Do you currently have any health insurance?</p>
+                <div class="choice">
+                  <p class="choice__prompt" id="insurance-label">
+                    Current Insurance
+                  </p>
+                  <div
+                    class="choice__options"
+                    role="radiogroup"
+                    aria-labelledby="insurance-label"
+                  >
+                    <label class="choice__option">
+                      <input type="radio" name="insurance" value="yes" />
+                      <span>Yes</span>
+                    </label>
+                    <label class="choice__option">
+                      <input type="radio" name="insurance" value="no" />
+                      <span>No</span>
+                    </label>
+                  </div>
+                  <div class="field" id="insurance-notes" hidden>
+                    <label for="insurance-details">Type/Amount</label>
+                    <textarea
+                      id="insurance-details"
+                      name="insurance-details"
+                      rows="2"
+                      autocomplete="off"
+                    ></textarea>
+                  </div>
+                  <div class="field" id="insurance-why" hidden>
+                    <label for="insurance-why-details">Why Is That?</label>
+                    <textarea
+                      id="insurance-why-details"
+                      name="insurance-why"
+                      rows="2"
+                      autocomplete="off"
+                    ></textarea>
+                  </div>
+                </div>
+              </section>
+
+              <section class="ask">
+                <p class="line" id="dob-line">
+                  Can you please confirm your current age, OR for more accurate
+                  quotes your date of birth?
+                </p>
+                <p class="line" id="dob-line-family" hidden>
+                  Can you please confirm the current age of all family members
+                  who would need coverage, including yourself, and let me know
+                  if they're male or female?
+                </p>
+                <p class="note">
+                  <span class="note__label">Why this works:</span>
+                  For an individual, date of birth can improve quote accuracy.
+                  For a family, asking for ages and applicable rating details in
+                  one grouped question is efficient and avoids making the
+                  process feel tedious. Collect only the details required for
+                  the specific quote.
+                </p>
+                <div class="field" id="members-card">
+                  <p class="choice__prompt" id="members-label">Who's Covered</p>
+                  <p class="hint" id="members-hint" hidden>
+                    Type a date as MM/DD/YYYY or use the calendar. Age works if
+                    they don't have the date.
+                  </p>
+                  <p class="hint" id="members-empty">
+                    Choose Individual, Family, or Not Sure above.
+                  </p>
+                  <div id="members" hidden></div>
+                  <button
+                    type="button"
+                    class="add-member"
+                    id="add-member"
+                    hidden
+                  >
+                    Add Family Member
+                  </button>
+                </div>
+              </section>
+
+              <section class="ask">
+                <p class="line" id="health-line">
+                  Do you have any preexisting health conditions or take any
+                  daily medications?
+                </p>
+                <p class="line" id="health-reassure">
+                  Not to worry if you do, this just helps me find the right fit
+                  for you.
+                </p>
+                <p class="line" id="health-line-family" hidden>
+                  Does anybody have any preexisting health conditions or take
+                  any daily medications?
+                </p>
+                <p class="line" id="health-reassure-family" hidden>
+                  Not to worry if someone does, this just helps me find the
+                  right fit for you.
+                </p>
+                <p class="note">
+                  <span class="note__label">Why this works:</span>
+                  Asking about both conditions and medications can prompt a more
+                  complete answer. A prospect may not think of a diagnosis as a
+                  ‘pre-existing condition,’ but may mention the medication they
+                  take for it. Follow up respectfully and record the prospect’s
+                  own words.
+                </p>
+                <div class="choice">
+                  <p class="choice__prompt" id="health-label">Health Notes</p>
+                  <div
+                    class="choice__options"
+                    role="radiogroup"
+                    aria-labelledby="health-label"
+                  >
+                    <label class="choice__option">
+                      <input type="radio" name="health-answer" value="yes" />
+                      <span>Yes</span>
+                    </label>
+                    <label class="choice__option">
+                      <input type="radio" name="health-answer" value="no" />
+                      <span>No</span>
+                    </label>
+                  </div>
+                  <div class="field" id="health-notes" hidden>
+                    <label for="health">Details</label>
+                    <textarea
+                      id="health"
+                      name="health"
+                      rows="3"
+                      autocomplete="off"
+                    ></textarea>
+                  </div>
+                  <div class="field">
+                    <label for="health-followup">Optional Follow-Up</label>
+                    <p class="line">
+                      Are there any upcoming procedures, recent
+                      hospitalizations, or ongoing treatments we should account
+                      for when we look at eligibility and coverage?
+                    </p>
+                    <textarea
+                      id="health-followup"
+                      name="health-followup"
+                      rows="2"
+                      autocomplete="off"
+                    ></textarea>
+                  </div>
+                </div>
+              </section>
+
+              <section class="ask">
+                <p class="line">
+                  So are you primarily focused on catastrophic type coverage so
+                  those unexpected major events don't turn into a financial
+                  crisis or are you more so needing routine, day-to-day doctor
+                  coverage?
+                </p>
+                <p class="note">
+                  <span class="note__label">Why this works:</span>
+                  This lets the prospect explain what matters most in their own
+                  words. A catastrophic-event priority may point us toward
+                  evaluating certain limited-benefit or indemnity-style options;
+                  frequent routine-care needs may make comprehensive major
+                  medical coverage more relevant. ‘Both’ is common, so do not
+                  get tripped up with a 'Both' response just acknowledge their
+                  reply and move on to the next question.
+                </p>
+                <div class="choice">
+                  <p class="choice__prompt" id="coverage-focus-label">
+                    Coverage Type
+                  </p>
+                  <div
+                    class="choice__options"
+                    role="radiogroup"
+                    aria-labelledby="coverage-focus-label"
+                  >
+                    <label class="choice__option">
+                      <input
+                        type="radio"
+                        name="coverage-focus"
+                        value="catastrophic"
+                      />
+                      <span>Catastrophic</span>
+                    </label>
+                    <label class="choice__option">
+                      <input
+                        type="radio"
+                        name="coverage-focus"
+                        value="everyday"
+                      />
+                      <span>Routine Coverage</span>
+                    </label>
+                    <label class="choice__option">
+                      <input type="radio" name="coverage-focus" value="both" />
+                      <span>"Both"</span>
+                    </label>
+                  </div>
+                </div>
+              </section>
+
+              <section class="ask">
+                <p class="line">
+                  Are you primarily focused on just health coverage, or would
+                  you also like to see the cost and value for dental or vision
+                  coverage? I can make those all separate line items if you
+                  like.
+                </p>
+                <p class="note">
+                  <span class="note__label">Why this works:</span>
+                  It gives the prospect control over what gets quoted while
+                  allowing the agent to identify additional needs. Either answer
+                  is fine; respect the preference and record it.
+                </p>
+                <div class="choice">
+                  <p class="choice__prompt" id="coverage-extras-label">
+                    Additional Coverage
+                  </p>
+                  <div
+                    class="choice__options choice__options--pair"
+                    role="radiogroup"
+                    aria-labelledby="coverage-extras-label"
+                  >
+                    <label class="choice__option">
+                      <input
+                        type="radio"
+                        name="coverage-extras"
+                        value="health"
+                        checked
+                      />
+                      <span>Health Only</span>
+                    </label>
+                    <label class="choice__option">
+                      <input
+                        type="radio"
+                        name="coverage-extras"
+                        value="dental-vision"
+                      />
+                      <span>Also Dental / Vision</span>
+                    </label>
+                    <label class="choice__option">
+                      <input
+                        type="radio"
+                        name="coverage-extras"
+                        value="dental"
+                      />
+                      <span>Also Dental</span>
+                    </label>
+                    <label class="choice__option">
+                      <input
+                        type="radio"
+                        name="coverage-extras"
+                        value="vision"
+                      />
+                      <span>Also Vision</span>
+                    </label>
+                  </div>
+                </div>
+              </section>
+
+              <section class="ask">
+                <p class="line">
+                  Most people that come through, the answer is yes, but I just
+                  need to confirm and it’s okay if you don’t. Do you currently
+                  earn or do you plan on earning self-employed income?
+                </p>
+                <p class="note">
+                  You want to know if this is an AmeriBenefit or Brightlife
+                  Client.
+                </p>
+                <div class="choice">
+                  <p class="choice__prompt" id="self-employed-label">
+                    Self-Employed Income
+                  </p>
+                  <div
+                    class="choice__options"
+                    role="radiogroup"
+                    aria-labelledby="self-employed-label"
+                  >
+                    <label class="choice__option">
+                      <input type="radio" name="self-employed" value="yes" />
+                      <span>Yes</span>
+                    </label>
+                    <label class="choice__option">
+                      <input type="radio" name="self-employed" value="no" />
+                      <span>No</span>
+                    </label>
+                  </div>
+                  <div class="field" id="business-id" hidden>
+                    <p class="line">
+                      I don't need to know them, but do you have an EIN for that
+                      business, or is it under your Social Security number?
+                    </p>
+                    <p class="note">
+                      A sole proprietorship is the type of business, not a tax
+                      ID. A sole prop can have an EIN or can operate under a
+                      Social Security number. Record which ID they actually
+                      have.
+                    </p>
+                    <div
+                      class="choice__options choice__options--three"
+                      role="radiogroup"
+                      aria-label="Business Tax ID"
+                    >
+                      <label class="choice__option">
+                        <input type="radio" name="business-id" value="ein" />
+                        <span>Has an EIN</span>
+                      </label>
+                      <label class="choice__option">
+                        <input type="radio" name="business-id" value="ssn" />
+                        <span>No EIN</span>
+                      </label>
+                      <label class="choice__option">
+                        <input
+                          type="radio"
+                          name="business-id"
+                          value="not-sure"
+                        />
+                        <span>Not Sure</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section class="ask">
+                <p class="line">
+                  And lastly, so I know that I'm bringing the right options to
+                  the table, would you mind sharing what your estimated gross
+                  household income is?
+                </p>
+                <p class="line">
+                  A ballpark figure is fine, it doesn't need to be down to the
+                  penny or anything.
+                </p>
+                <div class="field">
+                  <label for="household-income">Household Income</label>
+                  <input
+                    id="household-income"
+                    name="household-income"
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    spellcheck="false"
+                  />
+                </div>
+              </section>
+
+              <section class="ask">
+                <div class="field">
+                  <label for="extra-notes">Extra Notes</label>
+                  <textarea
+                    id="extra-notes"
+                    name="extra-notes"
+                    rows="3"
+                    autocomplete="off"
+                  ></textarea>
+                </div>
+              </section>
+
+              <div class="results">
+                <button type="button" id="copy-results">Copy Results</button>
+                <button type="button" id="download-results">
+                  Download Results
+                </button>
+              </div>
+            </form>
+
+            <h2>After They Answer</h2>
+            <div class="paths">
+              <article class="path">
+                <p class="line">
+                  Great, thank for clarifying. I will get to work on your
+                  quotes/
+                </p>
+              </article>
+              <p class="or">or</p>
+              <article class="path">
+                <p class="line">
+                  Thank you so much for confirming that. Last couple questions
+                  for you….
+                </p>
+                <p class="line">
+                  Thank you so much for this information. It is going to help me
+                  put together the best options for you and your family. I am
+                  going to get to work on this for you. I do have an opportunity
+                  tomorrow at 2:30 or 3:30pm. What works best for you?
+                </p>
+              </article>
+            </div>
+
+            <h2>Close</h2>
+            <p class="line">
+              So, <span class="client-name">______</span>, correct me if I’m
+              wrong, but this plan seems that it would align perfectly for you
+              and your family. Wouldn’t you agree? And the price point that we
+              just went over, would that be comfortable for you if that’s what
+              underwriting comes back with?
+            </p>
+            <p class="note">If yes:</p>
+            <p class="line">
+              Awesome, well the next logical step would be to see if you
+              qualify. Do you have 5 more minutes? We can start the application
+              and see what you get approved for and then we can discuss next
+              steps from there. Does that sound fair?
+            </p>
+            <p class="line">You should get a welcome email from the carrier</p>
+            <p class="line">
+              The next logical step is to see if you qualify. Do you have five
+              more minutes?
+            </p>
+          </div>
+
+          <!-- Marked in lead-call.md as a different lead. -->
+          <div class="script" data-lead="aged" hidden>
+            <h2>Opening</h2>
+            <p class="note">This is for a different lead.</p>
+            <p class="line">
+              I was giving you a call. I know Jill had a chance to speak with
+              you this morning about health insurance for you and your family.
+              I’m actually the broker. I was just reaching out to see if we can
+              set up an appointment to help you save on your Blue Cross Blue
+              Shield plan.
+            </p>
+            <p class="note">Always use “assistant”.</p>
+            <p class="note">
+              Show them value (they have to be motivated to set an appointment
+              with you).
+            </p>
+
+            <h2>Build the Reason to Meet</h2>
+            <p class="line">
+              What insurance do you have right now? Blue Shield — Okay, and you
+              are paying $800 per month?
+            </p>
+            <p class="line">
+              Listen, I know for a fact that I can get you way more coverage and
+              I can save you a lot of money on that monthly premium.
+            </p>
+            <p class="note">
+              You have created motivation and they will want to schedule a date
+              with you.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
