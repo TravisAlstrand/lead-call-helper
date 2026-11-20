@@ -140,7 +140,7 @@
               information...
             </p>
             <form class="details" id="lead-details-form" autocomplete="off">
-              <section class="ask">
+              <section class="ask" data-check="zip" data-label="Zip Code">
                 <p class="line">What's your zip code?</p>
                 <p class="note">
                   <span class="note__label">Why this works:</span>
@@ -161,7 +161,11 @@
                 </div>
               </section>
 
-              <section class="ask">
+              <section
+                class="ask"
+                data-check="household"
+                data-label="Household"
+              >
                 <p class="line">
                   Are you looking for an individual or family plan?
                 </p>
@@ -188,13 +192,17 @@
                     </label>
                     <label class="choice__option">
                       <input type="radio" name="household" value="not-sure" />
-                      <span>Not Sure</span>
+                      <span>"Not Sure"</span>
                     </label>
                   </div>
                 </div>
               </section>
 
-              <section class="ask">
+              <section
+                class="ask"
+                data-check="insurance"
+                data-label="Current Insurance"
+              >
                 <p class="line">Do you currently have any health insurance?</p>
                 <div class="choice">
                   <p class="choice__prompt" id="insurance-label">
@@ -215,7 +223,9 @@
                     </label>
                   </div>
                   <div class="field" id="insurance-notes" hidden>
-                    <label for="insurance-details">Type/Amount</label>
+                    <label for="insurance-details"
+                      >Type/Amount - Likes/Dislikes</label
+                    >
                     <textarea
                       id="insurance-details"
                       name="insurance-details"
@@ -235,7 +245,11 @@
                 </div>
               </section>
 
-              <section class="ask">
+              <section
+                class="ask"
+                data-check="covered"
+                data-label="Who's Covered"
+              >
                 <p class="line" id="dob-line">
                   Can you please confirm your current age, OR for more accurate
                   quotes your date of birth?
@@ -274,9 +288,13 @@
                 </div>
               </section>
 
-              <section class="ask">
+              <section
+                class="ask"
+                data-check="health"
+                data-label="Health Notes"
+              >
                 <p class="line" id="health-line">
-                  Do you have any preexisting health conditions or take any
+                  Do you have any pre-existing health conditions or take any
                   daily medications?
                 </p>
                 <p class="line" id="health-reassure">
@@ -295,8 +313,8 @@
                   <span class="note__label">Why this works:</span>
                   Asking about both conditions and medications can prompt a more
                   complete answer. A prospect may not think of a diagnosis as a
-                  ‘pre-existing condition,’ but may mention the medication they
-                  take for it. Follow up respectfully and record the prospect’s
+                  'pre-existing condition,' but may mention the medication they
+                  take for it. Follow up respectfully and record the prospect's
                   own words.
                 </p>
                 <div class="choice">
@@ -341,7 +359,11 @@
                 </div>
               </section>
 
-              <section class="ask">
+              <section
+                class="ask"
+                data-check="coverage"
+                data-label="Coverage Type"
+              >
                 <p class="line">
                   So are you primarily focused on catastrophic type coverage so
                   those unexpected major events don't turn into a financial
@@ -354,7 +376,7 @@
                   words. A catastrophic-event priority may point us toward
                   evaluating certain limited-benefit or indemnity-style options;
                   frequent routine-care needs may make comprehensive major
-                  medical coverage more relevant. ‘Both’ is common, so do not
+                  medical coverage more relevant. 'Both' is common, so do not
                   get tripped up with a 'Both' response just acknowledge their
                   reply and move on to the next question.
                 </p>
@@ -391,7 +413,11 @@
                 </div>
               </section>
 
-              <section class="ask">
+              <section
+                class="ask"
+                data-check="extras"
+                data-label="Additional Coverage"
+              >
                 <p class="line">
                   Are you primarily focused on just health coverage, or would
                   you also like to see the cost and value for dental or vision
@@ -418,7 +444,6 @@
                         type="radio"
                         name="coverage-extras"
                         value="health"
-                        checked
                       />
                       <span>Health Only</span>
                     </label>
@@ -450,12 +475,16 @@
                 </div>
               </section>
 
-              <section class="ask">
+              <section
+                class="ask"
+                data-check="self-employed"
+                data-label="Self-Employed Income"
+              >
                 <p class="line">
-                  Most people that come through, the answer is yes, but I just
-                  need to confirm and it’s okay if you don’t. Do you currently
-                  earn or do you plan on earning self-employed income?
+                  Do you currently earn or do you plan on earning self-employed
+                  income?
                 </p>
+                <p class="line">It's okay if you don't.</p>
                 <p class="note">
                   You want to know if this is an AmeriBenefit or Brightlife
                   Client.
@@ -508,14 +537,18 @@
                           name="business-id"
                           value="not-sure"
                         />
-                        <span>Not Sure</span>
+                        <span>"Not Sure"</span>
                       </label>
                     </div>
                   </div>
                 </div>
               </section>
 
-              <section class="ask">
+              <section
+                class="ask"
+                data-check="income"
+                data-label="Household Income"
+              >
                 <p class="line">
                   And lastly, so I know that I'm bringing the right options to
                   the table, would you mind sharing what your estimated gross
@@ -558,50 +591,21 @@
               </div>
             </form>
 
-            <h2>After They Answer</h2>
-            <div class="paths">
-              <article class="path">
-                <p class="line">
-                  Great, thank for clarifying. I will get to work on your
-                  quotes/
-                </p>
-              </article>
-              <p class="or">or</p>
-              <article class="path">
-                <p class="line">
-                  Thank you so much for confirming that. Last couple questions
-                  for you….
-                </p>
-                <p class="line">
-                  Thank you so much for this information. It is going to help me
-                  put together the best options for you and your family. I am
-                  going to get to work on this for you. I do have an opportunity
-                  tomorrow at 2:30 or 3:30pm. What works best for you?
-                </p>
-              </article>
-            </div>
-
             <h2>Close</h2>
             <p class="line">
-              So, <span class="client-name">______</span>, correct me if I’m
-              wrong, but this plan seems that it would align perfectly for you
-              and your family. Wouldn’t you agree? And the price point that we
-              just went over, would that be comfortable for you if that’s what
-              underwriting comes back with?
+              Thank you for clarifying all of that. What I'm going to do now is
+              go looking through all the options I have available and find some
+              that work for you and what you need. When we talk again, we'll go
+              through all the details together and see if any sound good to you.
+              Very low pressure. Sound good? (Schedule Follow-Up, give options)
             </p>
-            <p class="note">If yes:</p>
-            <p class="line">
-              Awesome, well the next logical step would be to see if you
-              qualify. Do you have 5 more minutes? We can start the application
-              and see what you get approved for and then we can discuss next
-              steps from there. Does that sound fair?
+            <p class="note">
+              <span class="note__label">Why this works:</span>
+              You lead the process by offering a clear next step and two real
+              appointment choices. The prospect retains agency by choosing the
+              time. Don't say 'I have' a time unless it is actually available,
+              and put the appointment on the calendar while you have them.
             </p>
-            <p class="line">You should get a welcome email from the carrier</p>
-            <p class="line">
-              The next logical step is to see if you qualify. Do you have five
-              more minutes?
-            </p>
-          </div>
 
           <!-- Marked in lead-call.md as a different lead. -->
           <div class="script" data-lead="aged" hidden>
@@ -610,11 +614,11 @@
             <p class="line">
               I was giving you a call. I know Jill had a chance to speak with
               you this morning about health insurance for you and your family.
-              I’m actually the broker. I was just reaching out to see if we can
+              I'm actually the broker. I was just reaching out to see if we can
               set up an appointment to help you save on your Blue Cross Blue
               Shield plan.
             </p>
-            <p class="note">Always use “assistant”.</p>
+            <p class="note">Always use "assistant".</p>
             <p class="note">
               Show them value (they have to be motivated to set an appointment
               with you).
@@ -637,6 +641,18 @@
         </section>
       </main>
     </div>
+    <dialog class="warn" id="results-warn" aria-labelledby="results-warn-title">
+      <h2 id="results-warn-title">Unanswered Questions</h2>
+      <p>
+        Some sections are still blank. You can save these notes anyway, or go
+        back and fill them in.
+      </p>
+      <ul id="results-warn-list"></ul>
+      <div class="warn__actions">
+        <button type="button" id="results-warn-back">Go Back</button>
+        <button type="button" id="results-warn-continue">Copy Anyway</button>
+      </div>
+    </dialog>
     <script src="./app.js"></script>
   </body>
 </html>

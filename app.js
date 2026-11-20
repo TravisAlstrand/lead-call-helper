@@ -222,7 +222,7 @@ function createMember(kind) {
     <div class="member__dob">
       <div class="choice__options" role="radiogroup" aria-label="Date or Age">
         <label class="choice__option">
-          <input type="radio" name="dob-mode-${id}" value="date" checked />
+          <input type="radio" name="dob-mode-${id}" value="date" />
           <span>Date of Birth</span>
         </label>
         <label class="choice__option">
@@ -230,7 +230,7 @@ function createMember(kind) {
           <span>Age</span>
         </label>
       </div>
-      <input class="member__date" type="date" aria-label="Date of Birth" autocomplete="off" />
+      <input class="member__date" type="date" aria-label="Date of Birth" autocomplete="off" hidden />
       <input class="member__age" type="text" inputmode="numeric" maxlength="3" placeholder="Age" aria-label="Age" autocomplete="off" hidden />
     </div>
   `;
@@ -242,13 +242,17 @@ function updateDobMode(radio, focusField) {
   if (!row) return;
   const date = row.querySelector(".member__date");
   const age = row.querySelector(".member__age");
+  const useDate = row.querySelector(
+    'input[name^="dob-mode-"][value="date"]',
+  ).checked;
   const useAge = row.querySelector(
     'input[name^="dob-mode-"][value="age"]',
   ).checked;
-  date.hidden = useAge;
+  date.hidden = !useDate;
   age.hidden = !useAge;
   if (!focusField) return;
-  (useAge ? age : date).focus();
+  if (useAge) age.focus();
+  else if (useDate) date.focus();
 }
 
 function updateSpouseOptions() {
@@ -293,6 +297,7 @@ detailsForm.addEventListener("click", (event) => {
   if (remove) {
     remove.closest(".member").remove();
     updateSpouseOptions();
+    refreshChecks();
     addMember.focus();
     return;
   }
@@ -311,6 +316,7 @@ detailsForm.addEventListener("click", (event) => {
     row
       .querySelector('input[type="radio"]:not(:disabled)')
       .focus({ preventScroll: true });
+    refreshChecks();
     return;
   }
 
@@ -332,18 +338,23 @@ detailsForm.addEventListener("click", (event) => {
   if (radio.name === "self-employed") updateSelfEmployed(radio.checked);
   if (radio.name === "household") updateHousehold();
   if (radio.name.startsWith("relation-")) updateSpouseOptions();
+  refreshChecks();
 });
 
 detailsForm.addEventListener("change", (event) => {
   const radio = event.target;
-  if (radio.type !== "radio") return;
-  if (radio.name === "insurance") updateInsuranceNotes(true);
-  if (radio.name === "health-answer") updateHealthNotes(true);
-  if (radio.name === "self-employed") updateSelfEmployed(true);
-  if (radio.name === "household") updateHousehold();
-  if (radio.name.startsWith("dob-mode-")) updateDobMode(radio, true);
-  if (radio.name.startsWith("relation-")) updateSpouseOptions();
+  if (radio.type === "radio") {
+    if (radio.name === "insurance") updateInsuranceNotes(true);
+    if (radio.name === "health-answer") updateHealthNotes(true);
+    if (radio.name === "self-employed") updateSelfEmployed(true);
+    if (radio.name === "household") updateHousehold();
+    if (radio.name.startsWith("dob-mode-")) updateDobMode(radio, true);
+    if (radio.name.startsWith("relation-")) updateSpouseOptions();
+  }
+  refreshChecks();
 });
+
+detailsForm.addEventListener("input", refreshChecks);
 
 updateInsuranceNotes(false);
 updateHealthNotes(false);
@@ -492,17 +503,158 @@ function copyTextFallback(text) {
   return copied ? Promise.resolve() : Promise.reject(new Error("copy failed"));
 }
 
-document.getElementById("copy-results").addEventListener("click", async () => {
-  const button = document.getElementById("copy-results");
-  try {
-    await copyText(buildResults());
-    flashResults(button, "Copied");
-  } catch {
-    flashResults(button, "Copy Failed");
+function memberComplete(row) {
+  if (row.hidden) return true;
+  const sex = row.querySelector('input[name^="sex-"]:checked');
+  const useAge = row.querySelector(
+    'input[name^="dob-mode-"][value="age"]',
+  )?.checked;
+  const useDate = row.querySelector(
+    'input[name^="dob-mode-"][value="date"]',
+  )?.checked;
+  const when = useAge
+    ? row.querySelector(".member__age").value.replace(/\D/g, "").length >= 2
+    : useDate && row.querySelector(".member__date").value.trim() !== "";
+  if (row.dataset.kind === "relative") {
+    const relation = row.querySelector('input[name^="relation-"]:checked');
+    return Boolean(relation && sex && when);
   }
+  return Boolean(sex && when);
+}
+
+function sectionComplete(section) {
+  switch (section.dataset.check) {
+    case "zip":
+      return fieldValue("zip").replace(/\D/g, "").length >= 5;
+    case "household":
+      return Boolean(document.querySelector('input[name="household"]:checked'));
+    case "insurance":
+      return Boolean(document.querySelector('input[name="insurance"]:checked'));
+    case "covered": {
+      if (!document.querySelector('input[name="household"]:checked')) return false;
+      return [...members.querySelectorAll(".member")].every(memberComplete);
+    }
+    case "health": {
+      const value = document.querySelector(
+        'input[name="health-answer"]:checked',
+      )?.value;
+      if (value === "no") return true;
+      if (value === "yes") return fieldValue("health") !== "";
+      return false;
+    }
+    case "coverage":
+      return Boolean(
+        document.querySelector('input[name="coverage-focus"]:checked'),
+      );
+    case "extras":
+      return Boolean(
+        document.querySelector('input[name="coverage-extras"]:checked'),
+      );
+    case "self-employed": {
+      const value = document.querySelector(
+        'input[name="self-employed"]:checked',
+      )?.value;
+      if (value === "no") return true;
+      if (value === "yes") {
+        return Boolean(document.querySelector('input[name="business-id"]:checked'));
+      }
+      return false;
+    }
+    case "income":
+      return fieldValue("household-income") !== "";
+    default:
+      return true;
+  }
+}
+
+function refreshChecks() {
+  document.querySelectorAll("[data-check]").forEach((section) => {
+    const complete = sectionComplete(section);
+    section.classList.toggle("is-complete", complete);
+    const status = section.querySelector(".ask__status");
+    if (status) status.textContent = complete ? "Complete" : "Incomplete";
+  });
+}
+
+function missingSections() {
+  return [...document.querySelectorAll("[data-check]")].filter(
+    (section) => !section.classList.contains("is-complete"),
+  );
+}
+
+document.querySelectorAll("[data-check]").forEach((section) => {
+  const status = document.createElement("span");
+  status.className = "ask__status";
+  section.prepend(status);
+});
+refreshChecks();
+
+const resultsWarn = document.getElementById("results-warn");
+const resultsWarnList = document.getElementById("results-warn-list");
+const resultsWarnContinue = document.getElementById("results-warn-continue");
+let pendingResults = null;
+
+function openResultsWarn(action, label) {
+  pendingResults = action;
+  resultsWarnContinue.textContent = label;
+  resultsWarnList.replaceChildren(
+    ...missingSections().map((section) => {
+      const item = document.createElement("li");
+      item.textContent = section.dataset.label;
+      return item;
+    }),
+  );
+  resultsWarn.showModal();
+}
+
+function runResults(action, anywayLabel) {
+  refreshChecks();
+  if (!missingSections().length) {
+    action();
+    return;
+  }
+  openResultsWarn(action, anywayLabel);
+}
+
+resultsWarn.addEventListener("close", () => {
+  pendingResults = null;
 });
 
-document.getElementById("download-results").addEventListener("click", () => {
+resultsWarn.addEventListener("click", (event) => {
+  if (event.target === resultsWarn) resultsWarn.close();
+});
+
+document.getElementById("results-warn-back").addEventListener("click", () => {
+  const first = missingSections()[0];
+  resultsWarn.close();
+  if (!first) return;
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+  first.scrollIntoView({
+    behavior: reduceMotion ? "auto" : "smooth",
+    block: "center",
+  });
+  first.querySelector("input, textarea, select, button")?.focus({
+    preventScroll: true,
+  });
+});
+
+resultsWarnContinue.addEventListener("click", () => {
+  const action = pendingResults;
+  resultsWarn.close();
+  action?.();
+});
+
+function copyResults() {
+  const button = document.getElementById("copy-results");
+  copyText(buildResults()).then(
+    () => flashResults(button, "Copied"),
+    () => flashResults(button, "Copy Failed"),
+  );
+}
+
+function downloadResults() {
   const file = new Blob([buildResults()], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(file);
   const link = document.createElement("a");
@@ -510,6 +662,14 @@ document.getElementById("download-results").addEventListener("click", () => {
   link.download = resultsFilename();
   link.click();
   URL.revokeObjectURL(url);
+}
+
+document.getElementById("copy-results").addEventListener("click", () => {
+  runResults(copyResults, "Copy Anyway");
+});
+
+document.getElementById("download-results").addEventListener("click", () => {
+  runResults(downloadResults, "Download Anyway");
 });
 
 applyTheme(currentTheme());
