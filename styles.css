@@ -148,6 +148,7 @@ label {
 }
 
 input[type="text"],
+input[type="email"],
 input[type="date"],
 select,
 textarea {
@@ -381,15 +382,29 @@ textarea {
 }
 
 .details .field,
-.details .choice {
+.details .choice,
+.email .field {
   margin: 0;
   padding: 0.85rem 0.9rem 0.95rem;
   border-radius: 0.8rem;
   background: var(--soft);
 }
 
+.email {
+  margin-top: 1.7rem;
+}
+
+.follow-up {
+  margin-top: 1.15rem;
+}
+
+.follow-up .line:last-child {
+  margin-bottom: 0;
+}
+
 .details .field input,
-.details .field textarea {
+.details .field textarea,
+.email .field input {
   background: var(--surface);
 }
 
@@ -527,6 +542,28 @@ textarea {
   min-width: 0;
 }
 
+.member__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.member__tobacco {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.member__tobacco input {
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
 .member__role,
 .member__remove {
   display: inline-flex;
@@ -558,6 +595,27 @@ textarea {
 .member__dob {
   display: grid;
   gap: 0.55rem;
+}
+
+.member__size {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+
+.member__size label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.member__size input::placeholder {
+  color: var(--muted);
+}
+
+@media (max-width: 560px) {
+  .member__size {
+    grid-template-columns: 1fr;
+  }
 }
 
 .details .member input[type="text"],

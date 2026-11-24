@@ -7,9 +7,10 @@ const toggleText = toggle.querySelector(".theme-toggle__text");
 const leadType = document.getElementById("lead-type");
 const yourName = document.getElementById("your-name");
 const clientName = document.getElementById("client-name");
-const agentName = document.getElementById("agent-name");
+const agentNameSlots = document.querySelectorAll(".agent-name");
 const clientNameSlots = document.querySelectorAll(".client-name");
 const scripts = document.querySelectorAll("[data-lead]");
+const callRest = document.getElementById("call-rest");
 const prefillJump = document.getElementById("prefill-jump");
 const leadDetails = document.getElementById("lead-details");
 const zip = document.getElementById("zip");
@@ -48,8 +49,10 @@ function applyTheme(theme) {
 
 function applyName(name) {
   const trimmed = name.trim();
-  agentName.textContent = trimmed || NAME_BLANK;
-  agentName.classList.toggle("is-set", trimmed.length > 0);
+  agentNameSlots.forEach((slot) => {
+    slot.textContent = trimmed || NAME_BLANK;
+    slot.classList.toggle("is-set", trimmed.length > 0);
+  });
 }
 
 function applyClientName(name) {
@@ -97,6 +100,7 @@ function showSelectedLead() {
   scripts.forEach((script) => {
     script.hidden = script.dataset.lead !== selected;
   });
+  callRest.hidden = !selected;
 }
 
 function resetLeadType() {
@@ -143,9 +147,8 @@ const healthLine = document.getElementById("health-line");
 const healthReassure = document.getElementById("health-reassure");
 const healthLineFamily = document.getElementById("health-line-family");
 const healthReassureFamily = document.getElementById("health-reassure-family");
-const membersHint = document.getElementById("members-hint");
-const membersEmpty = document.getElementById("members-empty");
 const members = document.getElementById("members");
+const spouseCallLine = document.getElementById("spouse-call-line");
 const addMember = document.getElementById("add-member");
 let memberSeq = 0;
 
@@ -207,6 +210,10 @@ function createMember(kind) {
   row.innerHTML = `
     <div class="member__top">
       ${relation}
+      <label class="member__tobacco">
+        <span>Tobacco/Nicotine</span>
+        <input type="checkbox" name="tobacco-${id}" />
+      </label>
     </div>
     ${relationChoices}
     <div class="choice__options" role="radiogroup" aria-label="Sex">
@@ -232,6 +239,16 @@ function createMember(kind) {
       </div>
       <input class="member__date" type="date" aria-label="Date of Birth" autocomplete="off" hidden />
       <input class="member__age" type="text" inputmode="numeric" maxlength="3" placeholder="Age" aria-label="Age" autocomplete="off" hidden />
+    </div>
+    <div class="member__size">
+      <label>
+        <span>Approximate Height</span>
+        <input class="member__height" type="text" name="height-${id}" autocomplete="off" spellcheck="false" placeholder="5' 10&quot;" />
+      </label>
+      <label>
+        <span>Approximate Weight</span>
+        <input class="member__weight" type="text" name="weight-${id}" autocomplete="off" spellcheck="false" placeholder="180 lbs" />
+      </label>
     </div>
   `;
   return row;
@@ -261,6 +278,18 @@ function updateSpouseOptions() {
   spouseRadios.forEach((radio) => {
     radio.disabled = Boolean(selected) && radio !== selected;
   });
+  updateSpouseCallLine();
+}
+
+function updateSpouseCallLine() {
+  const household = document.querySelector(
+    'input[name="household"]:checked',
+  )?.value;
+  const familyPlan = household === "family" || household === "not-sure";
+  const spouseIncluded = Boolean(
+    members.querySelector('input[value="spouse"]:checked'),
+  );
+  spouseCallLine.hidden = !(familyPlan || spouseIncluded);
 }
 
 function updateHousehold() {
@@ -273,13 +302,7 @@ function updateHousehold() {
   healthReassure.hidden = isFamily;
   healthLineFamily.hidden = !isFamily;
   healthReassureFamily.hidden = !isFamily;
-  membersEmpty.hidden = value !== "";
-  membersHint.hidden = value === "";
-  members.hidden = value === "";
-  addMember.hidden = !isFamily;
-  members.querySelectorAll('[data-kind="relative"]').forEach((row) => {
-    row.hidden = !isFamily;
-  });
+  updateSpouseCallLine();
 }
 
 members.append(createMember("self"));
@@ -327,9 +350,7 @@ detailsForm.addEventListener("click", (event) => {
     radio.checked = false;
   }
   detailsForm
-    .querySelectorAll(
-      `input[type="radio"][name="${CSS.escape(radio.name)}"]`,
-    )
+    .querySelectorAll(`input[type="radio"][name="${CSS.escape(radio.name)}"]`)
     .forEach((item) => {
       item.dataset.wasChecked = String(item.checked);
     });
@@ -404,7 +425,15 @@ function describeMember(row) {
     const date = formatDate(row.querySelector(".member__date").value);
     if (date) when = `Date of Birth ${date}`;
   }
-  return [who, sexLabel, when].filter(Boolean).join(", ");
+  const height = row.querySelector(".member__height")?.value.trim() ?? "";
+  const weight = row.querySelector(".member__weight")?.value.trim() ?? "";
+  const tobacco = row.querySelector(".member__tobacco input")?.checked;
+  if (!sexLabel && !when && !tobacco && !height && !weight) return "";
+  const parts = [who, sexLabel, when].filter(Boolean);
+  if (height) parts.push(`Approximate Height: ${height}`);
+  if (weight) parts.push(`Approximate Weight: ${weight}`);
+  if (tobacco) parts.push("Tobacco/Nicotine: Yes");
+  return parts.join(", ");
 }
 
 function buildResults() {
@@ -429,7 +458,8 @@ function buildResults() {
   const insurance = checkedLabel("insurance");
   add("Current Insurance", insurance);
   if (insurance === "Yes") add("Type/Amount", fieldValue("insurance-details"));
-  if (insurance === "No") add("Why Is That?", fieldValue("insurance-why-details"));
+  if (insurance === "No")
+    add("Why Is That?", fieldValue("insurance-why-details"));
 
   if (!members.hidden) {
     const people = [...members.querySelectorAll(".member")]
@@ -452,10 +482,12 @@ function buildResults() {
 
   const selfEmployed = checkedLabel("self-employed");
   add("Self-Employed Income", selfEmployed);
-  if (selfEmployed === "Yes") add("Business Tax ID", checkedLabel("business-id"));
+  if (selfEmployed === "Yes")
+    add("Business Tax ID", checkedLabel("business-id"));
 
   add("Household Income", fieldValue("household-income"));
   add("Extra Notes", fieldValue("extra-notes"));
+  add("Email Address", fieldValue("email"));
 
   if (details.length) lines.push("", ...details);
   else lines.push("", "No details entered yet.");
@@ -483,7 +515,9 @@ function flashResults(button, message) {
 
 function copyText(text) {
   if (navigator.clipboard?.writeText) {
-    return navigator.clipboard.writeText(text).catch(() => copyTextFallback(text));
+    return navigator.clipboard
+      .writeText(text)
+      .catch(() => copyTextFallback(text));
   }
   return copyTextFallback(text);
 }
@@ -530,10 +564,8 @@ function sectionComplete(section) {
       return Boolean(document.querySelector('input[name="household"]:checked'));
     case "insurance":
       return Boolean(document.querySelector('input[name="insurance"]:checked'));
-    case "covered": {
-      if (!document.querySelector('input[name="household"]:checked')) return false;
+    case "covered":
       return [...members.querySelectorAll(".member")].every(memberComplete);
-    }
     case "health": {
       const value = document.querySelector(
         'input[name="health-answer"]:checked',
@@ -556,7 +588,9 @@ function sectionComplete(section) {
       )?.value;
       if (value === "no") return true;
       if (value === "yes") {
-        return Boolean(document.querySelector('input[name="business-id"]:checked'));
+        return Boolean(
+          document.querySelector('input[name="business-id"]:checked'),
+        );
       }
       return false;
     }

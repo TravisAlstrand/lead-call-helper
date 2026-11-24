@@ -90,10 +90,6 @@
 
           <!-- AO Leads: from lead-call.md, above the "different lead" note. -->
           <div class="script" data-lead="ao" hidden>
-            <a class="prefill" id="prefill-jump" href="#lead-details">
-              Enter Details You Already Have
-            </a>
-
             <h2>Opening</h2>
             <p class="line">
               Hey there, is this
@@ -133,6 +129,56 @@
               an educated decision on what best aligns with your wants, needs,
               and most importantly, your budget. Does that sound fair?
             </p>
+          </div>
+
+          <!-- Aged Leads intro. Edit this block. The form and close below are shared. -->
+          <div class="script" data-lead="aged" hidden>
+            <h2>Opening</h2>
+            <p class="line">
+              Hey there, is this
+              <span class="client-name">______</span>?
+            </p>
+            <p class="line">
+              Hi <span class="client-name">______</span>, my name is
+              <span class="agent-name">______</span> and I'm actually with USA
+              Benefits Group. How are you doing today?
+            </p>
+
+            <details class="aside">
+              <summary>USA Benefits Group?</summary>
+              <ul>
+                <li>
+                  We're one of the largest insurance brokerages in the US.
+                </li>
+                <li>We've been in business for 39 years.</li>
+                <li>We have an A+ Better Business Bureau rating.</li>
+                <li>
+                  Feel free to look us up while we're chatting. We're very proud
+                  of that.
+                </li>
+              </ul>
+            </details>
+
+            <h2 id="aged-why">Why You're Calling</h2>
+            <p class="line">
+              We spoke to you over a year ago and I see that nothing conclusive
+              came out of that, so I wanted to just follow up with you. Have you
+              found a health insurance plan that's affordable and has good
+              benefits?
+            </p>
+            <p class="line">
+              I have my own brokerage here and I have access to many of the
+              great carriers throughout the US, so I'll be able to go through a
+              bunch of options for you, and present them to you so you can make
+              an educated decision on what best aligns with your wants, needs,
+              and most importantly, your budget. Does that sound fair?
+            </p>
+          </div>
+
+          <div class="script" id="call-rest" hidden>
+            <a class="prefill" id="prefill-jump" href="#lead-details">
+              Enter Details You Already Have
+            </a>
 
             <h2 id="lead-details">Information to Gather</h2>
             <p class="line">
@@ -269,20 +315,12 @@
                 </p>
                 <div class="field" id="members-card">
                   <p class="choice__prompt" id="members-label">Who's Covered</p>
-                  <p class="hint" id="members-hint" hidden>
+                  <p class="hint" id="members-hint">
                     Type a date as MM/DD/YYYY or use the calendar. Age works if
                     they don't have the date.
                   </p>
-                  <p class="hint" id="members-empty">
-                    Choose Individual, Family, or Not Sure above.
-                  </p>
-                  <div id="members" hidden></div>
-                  <button
-                    type="button"
-                    class="add-member"
-                    id="add-member"
-                    hidden
-                  >
+                  <div id="members"></div>
+                  <button type="button" class="add-member" id="add-member">
                     Add Family Member
                   </button>
                 </div>
@@ -582,13 +620,6 @@
                   ></textarea>
                 </div>
               </section>
-
-              <div class="results">
-                <button type="button" id="copy-results">Copy Results</button>
-                <button type="button" id="download-results">
-                  Download Results
-                </button>
-              </div>
             </form>
 
             <h2>Close</h2>
@@ -607,36 +638,38 @@
               and put the appointment on the calendar while you have them.
             </p>
 
-          <!-- Marked in lead-call.md as a different lead. -->
-          <div class="script" data-lead="aged" hidden>
-            <h2>Opening</h2>
-            <p class="note">This is for a different lead.</p>
-            <p class="line">
-              I was giving you a call. I know Jill had a chance to speak with
-              you this morning about health insurance for you and your family.
-              I'm actually the broker. I was just reaching out to see if we can
-              set up an appointment to help you save on your Blue Cross Blue
-              Shield plan.
-            </p>
-            <p class="note">Always use "assistant".</p>
-            <p class="note">
-              Show them value (they have to be motivated to set an appointment
-              with you).
-            </p>
+            <div class="email">
+              <div class="field">
+                <label for="email">Email Address</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  inputmode="email"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+              </div>
+            </div>
 
-            <h2>Build the Reason to Meet</h2>
-            <p class="line">
-              What insurance do you have right now? Blue Shield — Okay, and you
-              are paying $800 per month?
-            </p>
-            <p class="line">
-              Listen, I know for a fact that I can get you way more coverage and
-              I can save you a lot of money on that monthly premium.
-            </p>
-            <p class="note">
-              You have created motivation and they will want to schedule a date
-              with you.
-            </p>
+            <div class="follow-up">
+              <p class="line">
+                Alright, so on our next call I'll send you an email with the
+                plan information that I'll be going over, so if you could be by
+                a computer that would be helpful.
+              </p>
+              <p class="line" id="spouse-call-line" hidden>
+                Is this something you're comfortable taking care of, or should
+                your spouse be present for that call as well?
+              </p>
+            </div>
+
+            <div class="results">
+              <button type="button" id="copy-results">Copy Results</button>
+              <button type="button" id="download-results">
+                Download Results
+              </button>
+            </div>
           </div>
         </section>
       </main>
